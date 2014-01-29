@@ -41,6 +41,7 @@ class HomeRemoteServer < Sinatra::Base
 			  speaker.muted? ? speaker.unmute : speaker.mute
 			end
 		rescue
+			speaker = system.find_speaker_by_uid(speaker)
 			"#{speaker.name} had an error when trying to process the #{command} command." 
 		end
 	end
