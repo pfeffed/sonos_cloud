@@ -1,0 +1,55 @@
+  <% zone_count = 0 %>
+  <% @sonos.groups.each do |group| %>
+  	<% zone_count = zone_count + 1 %>
+		<div class="panel panel-primary" id="zone<%= zone_count %>">
+	    <div class="panel-heading">
+	      <h3 class="panel-title">
+	      	<% group.speakers.each_with_index do |speaker, i| %>
+	      		<%= "#{speaker.name}" %><%= ", " unless i == (group.speakers.size - 1) %>
+      		<% end %>
+	      </h3>
+	    </div>
+	    <div class="panel-body">
+				<div class="btn-group">
+					<% uid = group.master_speaker.uid.gsub('uuid:','') %>
+				  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'play'); ">Play</button>
+				  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'pause'); ">Pause</button>
+				  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'stop'); ">Stop</button>
+				  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'prev'); ">Prev</button>
+				  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'next'); ">Next</button>
+				  <% if group.speakers.size == 1 %>
+					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'volup'); ">Vol +</button>
+					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'voldown'); ">Vol -</button>
+					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'mute'); ">Mute</button>
+					  </div>
+				  <% else %>
+				    </div>
+				    <br /><br />
+				    <% group.speakers.each do |speaker| %>
+				    <% uid = speaker.uid.gsub('uuid:','') %>
+				    	<div class="btn-group">
+		      			<button type="button" class="btn btn-default" disabled="true" style="width:130px"><%= "#{speaker.name}" %></button>
+						    <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'volup'); ">Vol +</button>
+							  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'voldown'); ">Vol -</button>
+							  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'mute'); ">Mute</button>
+						  </div><br />
+					  <% end %>
+				  <% end %>
+	    </div>
+	  </div>
+	  <script>
+	  	function sonosCommand(uid, cmd){
+	  		xhr = $.ajax({
+				  type: "GET",
+				  url: "/" + uid + "/" + cmd
+				});
+	  	}
+	  	$( document ).ready(function() {
+	  		$( ':button' ).each(function() {
+	  			$( this ).click(function() {
+	  				$( this ).blur();
+	  			});
+	  		});
+	  	});
+	  </script>
+  <% end %>
