@@ -1,9 +1,11 @@
 # home_remote_server.rb
 
 require 'sinatra/base'
+require 'sinatra/multi_route'
 require 'sonos'
 
 class HomeRemoteServer < Sinatra::Base
+	register Sinatra::MultiRoute
 	set :sessions, true
 	# Daemons.daemonize
 
@@ -12,7 +14,7 @@ class HomeRemoteServer < Sinatra::Base
 	  erb :index
 	end
 
-	get '/:speaker/:command' do
+	route :get, :post, :put '/:speaker/:command' do
 		sendCommand(params[:speaker], params[:command])
 	end
 
