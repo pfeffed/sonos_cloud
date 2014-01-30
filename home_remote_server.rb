@@ -14,7 +14,7 @@ class HomeRemoteServer < Sinatra::Base
 	  erb :index
 	end
 
-	route :get, :post, :put '/:speaker/:command' do
+	route :get, :post, :put, '/:speaker/:command' do
 		sendCommand(params[:speaker], params[:command])
 	end
 
