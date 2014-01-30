@@ -35,10 +35,10 @@ class HomeRemoteServer < Sinatra::Base
 			  speaker.stop
 			  return 200
 			when 'next'
-			  speaker.stop
+			  speaker.next
 			  return 200
-			when 'prev'
-			  speaker.stop
+			when 'prev', 'previous'
+			  speaker.previous
 			  return 200
 			when 'volup'
 				speaker.unmute if speaker.muted?
