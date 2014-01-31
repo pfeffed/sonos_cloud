@@ -25,6 +25,23 @@ class HomeRemoteServer < Sinatra::Base
 		set_volume(params[:speaker], params[:volume_level])
 	end
 
+	route :get, :post, :put, '/tvOn' do
+		speaker = grab_speaker("Kitchen")
+		speaker.mute
+		speaker.line_in(speaker)
+		speaker.volume = 70
+		speaker.unmute
+		speaker.play
+		200
+	end
+
+	route :get, :post, :put, '/tvOff' do
+		speaker = grab_speaker("Kitchen")
+		speaker.stop
+		speaker.volume = 20
+		200
+	end
+
 	def send_command(speaker_id, command)
 		speaker = grab_speaker(speaker_id)
 		unless speaker.nil?	
