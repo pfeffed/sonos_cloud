@@ -3,6 +3,7 @@
 require 'sinatra/base'
 require 'sinatra/multi_route'
 require 'sonos'
+require './itach'
 
 class HomeRemoteServer < Sinatra::Base
 	register Sinatra::MultiRoute
@@ -11,6 +12,44 @@ class HomeRemoteServer < Sinatra::Base
 	get '/' do
 	  @sonos = Sonos::System.new
 	  erb :index
+	end
+
+	route :get, :post, :put, '/tvOn' do
+		speaker = grab_speaker("Kitchen")
+		speaker.ungroup
+		speaker.mute
+		speaker.line_in(speaker)
+		speaker.volume = 70
+		speaker.unmute
+		speaker.play
+		%x(wemo switch "Kitchen TV" on)
+		200
+	end
+
+	route :get, :post, :put, '/tvOff' do
+		speaker = grab_speaker("Kitchen")
+		speaker.stop
+		speaker.volume = 20
+		%x(wemo switch "Kitchen TV" off)
+		200
+	end
+
+	route :get, :post, :put, '/tvInput/:number' do
+		hdmi_switch = Itach.new
+		command = nil
+		case params[:number].to_i
+		when 1
+			command = hdmi_switch.hdmi_1
+		when 2
+			command = hdmi_switch.hdmi_2
+		when 3
+			command = hdmi_switch.hdmi_3
+		when 4
+			command = hdmi_switch.hdmi_4
+		when 5
+			command = hdmi_switch.hdmi_5
+		end
+		hdmi_switch.set_hdmi_port(command, 1) unless command.nil?
 	end
 
 	route :get, :post, :put, '/:speaker/:command' do
@@ -23,23 +62,6 @@ class HomeRemoteServer < Sinatra::Base
 
 	route :get, :post, :put, '/:speaker/volume/:volume_level' do
 		set_volume(params[:speaker], params[:volume_level])
-	end
-
-	route :get, :post, :put, '/tvOn' do
-		speaker = grab_speaker("Kitchen")
-		speaker.mute
-		speaker.line_in(speaker)
-		speaker.volume = 70
-		speaker.unmute
-		speaker.play
-		200
-	end
-
-	route :get, :post, :put, '/tvOff' do
-		speaker = grab_speaker("Kitchen")
-		speaker.stop
-		speaker.volume = 20
-		200
 	end
 
 	def send_command(speaker_id, command)
@@ -111,7 +133,7 @@ class HomeRemoteServer < Sinatra::Base
 			return speaker
 		rescue
 			begin
-				return send_error_response "An unknown error occurred identifying the speaker."
+				send_error_response "An unknown error occurred identifying the speaker."
 				return nil
 			rescue
 			end
