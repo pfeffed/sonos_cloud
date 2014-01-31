@@ -20,7 +20,7 @@
 				  <% if group.speakers.size == 1 %>
 					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'volup'); ">Vol +</button>
 					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'voldown'); ">Vol -</button>
-					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'mute'); ">Mute</button>
+					  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'toggleMute'); ">Mute</button>
 					  </div>
 				  <% else %>
 				    </div>
@@ -31,7 +31,7 @@
 		      			<button type="button" class="btn btn-default" disabled="true" style="width:130px"><%= "#{speaker.name}" %></button>
 						    <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'volup'); ">Vol +</button>
 							  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'voldown'); ">Vol -</button>
-							  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'mute'); ">Mute</button>
+							  <button type="button" class="btn btn-default" onclick="sonosCommand('<%= uid %>', 'toggleMute'); ">Mute</button>
 						  </div><br />
 					  <% end %>
 				  <% end %>

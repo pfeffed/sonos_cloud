@@ -7,7 +7,6 @@ require 'sonos'
 class HomeRemoteServer < Sinatra::Base
 	register Sinatra::MultiRoute
 	set :sessions, true
-	# Daemons.daemonize
 
 	get '/' do
 	  @sonos = Sonos::System.new
@@ -15,15 +14,20 @@ class HomeRemoteServer < Sinatra::Base
 	end
 
 	route :get, :post, :put, '/:speaker/:command' do
-		sendCommand(params[:speaker], params[:command])
+		send_command(params[:speaker], params[:command])
 	end
 
-	def sendCommand(speaker_id, command)
-		begin
-			system = Sonos::System.new
-			speaker = system.find_speaker_by_uid(speaker_id)
-			speaker = system.find_speaker_by_name(speaker_id) if speaker.nil?
-			return send_error_response "Speaker '#{speaker_id}' could not be found." if speaker.nil?
+	route :get, :post, :put, '/:speaker/linein/:source_speaker' do
+		send_linein_command(params[:speaker], params[:source_speaker])
+	end
+
+	route :get, :post, :put, '/:speaker/volume/:volume_level' do
+		set_volume(params[:speaker], params[:volume_level])
+	end
+
+	def send_command(speaker_id, command)
+		speaker = grab_speaker(speaker_id)
+		unless speaker.nil?	
 			case command
 			when 'play'
 			  speaker.play
@@ -42,21 +46,56 @@ class HomeRemoteServer < Sinatra::Base
 			  return 200
 			when 'volup'
 				speaker.unmute if speaker.muted?
-			  speaker.volume = speaker.volume + 5
+				new_volume = speaker.volume + 5
+				new_volume = 100 if new_volume > 100
+			  speaker.volume = new_volume
 			  return 200
 			when 'voldown'
 				speaker.unmute if speaker.muted?
-			  speaker.volume = speaker.volume - 5
+				new_volume = speaker.volume - 5
+				new_volume = 0 if new_volume < 0
+			  speaker.volume = new_volume
 			  return 200
 			when 'mute'
+			  speaker.mute
+			  return 200
+			when 'unmute'
+			  speaker.unmute
+			  return 200
+			when 'toggleMute'
 			  speaker.muted? ? speaker.unmute : speaker.mute
 			  return 200
 			else
 				return send_error_response "The command '#{command}' is not currently supported by this remote."
 			end
+		end
+	end
+
+	def send_linein_command(speaker_id, target_speaker_id)
+		speaker = grab_speaker(speaker_id)
+		target_speaker = grab_speaker(target_speaker_id)
+		speaker.line_in(target_speaker) unless (speaker.nil? or target_speaker.nil?)
+	end
+
+	def set_volume(speaker_id, volume)
+		volume = 0 if volume < 0
+		volume = 100 if volume > 100
+		speaker = grab_speaker(speaker_id)
+		speaker.volume = volume unless speaker.nil?
+	end
+
+	def grab_speaker(speaker_id)
+		begin
+			system = Sonos::System.new
+			speaker = system.find_speaker_by_uid(speaker_id)
+			speaker = system.find_speaker_by_name(speaker_id) if speaker.nil?
+			send_error_response "Speaker '#{speaker_id}' could not be found." if speaker.nil?
+			puts "couldn't find #{speaker_id}" if speaker.nil?
+			return speaker
 		rescue
 			begin
-				return send_error_response "An unknown error occurred."
+				return send_error_response "An unknown error occurred identifying the speaker."
+				return nil
 			rescue
 			end
 		end
