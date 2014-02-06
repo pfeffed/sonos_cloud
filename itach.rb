@@ -1,6 +1,8 @@
 class Itach
 
-	require 'HTTParty'
+	require 'rubygems'
+	require 'rest-client'
+	require 'json'
 
 	attr_reader :hdmi_1, :hdmi_2 ,:hdmi_3 ,:hdmi_4 ,:hdmi_5
 
@@ -39,9 +41,6 @@ class Itach
 	end
 
 	def set_hdmi_port(command, port)
-		response = HTTParty.post("http://192.168.1.143/api/v1/irports/#{port}/sendir", 
-			:body => command.to_json,
-			:options => { :headers => { 'ContentType' => 'application/json' }
-		})
+		RestClient.post "http://192.168.1.143/api/v1/irports/#{port}/sendir", command.to_json, :content_type => :json, :accept => :json
 	end
 end

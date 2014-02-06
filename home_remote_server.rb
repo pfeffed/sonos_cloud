@@ -50,6 +50,7 @@ class HomeRemoteServer < Sinatra::Base
 			command = hdmi_switch.hdmi_5
 		end
 		hdmi_switch.set_hdmi_port(command, 1) unless command.nil?
+		200
 	end
 
 	route :get, :post, :put, '/:speaker/:command' do
