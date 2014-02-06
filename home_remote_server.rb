@@ -15,6 +15,7 @@ class HomeRemoteServer < Sinatra::Base
 	end
 
 	route :get, :post, :put, '/tvOn' do
+		%x(wemo switch "Kitchen TV" on)
 		speaker = grab_speaker("Kitchen")
 		speaker.ungroup
 		speaker.mute
@@ -22,15 +23,14 @@ class HomeRemoteServer < Sinatra::Base
 		speaker.volume = 70
 		speaker.unmute
 		speaker.play
-		%x(wemo switch "Kitchen TV" on)
 		200
 	end
 
 	route :get, :post, :put, '/tvOff' do
+		%x(wemo switch "Kitchen TV" off)
 		speaker = grab_speaker("Kitchen")
 		speaker.stop
 		speaker.volume = 20
-		%x(wemo switch "Kitchen TV" off)
 		200
 	end
 
