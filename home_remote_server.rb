@@ -94,7 +94,7 @@ class HomeRemoteServer < Sinatra::Base
 			return speaker
 		rescue
 			begin
-				return send_error_response "An unknown error occurred identifying the speaker."
+				send_error_response "An unknown error occurred identifying the speaker."
 				return nil
 			rescue
 			end
